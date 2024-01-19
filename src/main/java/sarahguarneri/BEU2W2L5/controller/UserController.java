@@ -3,6 +3,7 @@ package sarahguarneri.BEU2W2L5.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import sarahguarneri.BEU2W2L5.entites.User;
+import sarahguarneri.BEU2W2L5.payloads.UserPayload;
 import sarahguarneri.BEU2W2L5.services.UserService;
 
 import java.util.List;
@@ -28,7 +29,7 @@ public class UserController {
     };
 
     @PostMapping
-    public User postUser(@PathVariable User newUser){
+    public User postUser(@PathVariable UserPayload newUser){
         return userService.save(newUser);
     };
 

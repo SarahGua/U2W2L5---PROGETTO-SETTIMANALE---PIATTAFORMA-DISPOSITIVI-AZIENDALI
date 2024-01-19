@@ -1,11 +1,11 @@
 package sarahguarneri.BEU2W2L5.services;
 
+import org.apache.coyote.BadRequestException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sarahguarneri.BEU2W2L5.DAO.DeviceDAO;
 import sarahguarneri.BEU2W2L5.DAO.UserDAO;
 import sarahguarneri.BEU2W2L5.entites.User;
-import sarahguarneri.BEU2W2L5.payloads.UserPayload;
+import sarahguarneri.BEU2W2L5.exceptions.NotFoundException;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,15 +16,12 @@ public class UserService {
     @Autowired
     private UserDAO userDAO;
 
-    @Autowired
-    private DeviceService deviceService;
-
     public List<User> getUsers(){
         return userDAO.findAll();
     };
 
     public User findById(UUID id){
-        return userDAO.findById(id).orElseThrow(null);
+        return userDAO.findById(id).orElseThrow(() -> new NotFoundException(id));
     }
 
     public void findByIdAndDelete(UUID id){
@@ -32,7 +29,14 @@ public class UserService {
         userDAO.delete(found);
     }
 
-    public User save(UserPayload body){
+    public User save(User body){
+        userDAO.findById(body.getId()).ifPresent(user -> {
+            try {
+                throw new BadRequestException("utente già esistente");
+            } catch (BadRequestException e) {
+                throw new RuntimeException(e);
+            }
+        });
         User newUser = new User();
         newUser.setUsername(body.getUsername());
         newUser.setName(body.getName());
